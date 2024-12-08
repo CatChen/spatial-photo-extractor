@@ -6,6 +6,10 @@
 	objectVersion = 77;
 	objects = {
 
+/* Begin PBXBuildFile section */
+		7438A4ED2D0571A5004CEC0B /* ArgumentParser in Frameworks */ = {isa = PBXBuildFile; productRef = 7438A4EC2D0571A5004CEC0B /* ArgumentParser */; };
+/* End PBXBuildFile section */
+
 /* Begin PBXCopyFilesBuildPhase section */
 		74448A3C2D027D3E00B96B8F /* CopyFiles */ = {
 			isa = PBXCopyFilesBuildPhase;
@@ -35,6 +39,7 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				7438A4ED2D0571A5004CEC0B /* ArgumentParser in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -77,6 +82,7 @@
 			);
 			name = "spatial-photo-extractor";
 			packageProductDependencies = (
+				7438A4EC2D0571A5004CEC0B /* ArgumentParser */,
 			);
 			productName = "spatial-photo-extractor";
 			productReference = 74448A3E2D027D3E00B96B8F /* spatial-photo-extractor */;
@@ -106,6 +112,9 @@
 			);
 			mainGroup = 74448A352D027D3E00B96B8F;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				7438A4EB2D0571A5004CEC0B /* XCRemoteSwiftPackageReference "swift-argument-parser" */,
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 74448A3F2D027D3E00B96B8F /* Products */;
 			projectDirPath = "";
@@ -285,6 +294,25 @@
 			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		7438A4EB2D0571A5004CEC0B /* XCRemoteSwiftPackageReference "swift-argument-parser" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/apple/swift-argument-parser.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 1.5.0;
+			};
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		7438A4EC2D0571A5004CEC0B /* ArgumentParser */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 7438A4EB2D0571A5004CEC0B /* XCRemoteSwiftPackageReference "swift-argument-parser" */;
+			productName = ArgumentParser;
+		};
+/* End XCSwiftPackageProductDependency section */
 	};
 	rootObject = 74448A362D027D3E00B96B8F /* Project object */;
 }
