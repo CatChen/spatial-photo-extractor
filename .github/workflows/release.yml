@@ -36,8 +36,7 @@ jobs:
 
       - name: Create DMG file
         run: |
-          mkdir -p ./dmg
-          hdiutil create ./build/spatial-photo-extractor.dmg -volname "spatial-photo-extractor" -srcfolder ./.build/Build/Products/Release/spatial-photo-extractor -ov -format UDZO
+          hdiutil create ./.build/spatial-photo-extractor.dmg -volname "spatial-photo-extractor" -srcfolder ./.build/Build/Products/Release/spatial-photo-extractor -srcfolder ./README.md -ov -format UDZO
 
       - name: Upload DMG Release Asset
         uses: actions/upload-release-asset@v1
