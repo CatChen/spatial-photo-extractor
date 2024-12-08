@@ -21,12 +21,13 @@ jobs:
         with:
           xcode-version: latest-stable
 
+      - name: Build with xcodebuild
+        run: xcodebuild -configuration Release -scheme spatial-photo-extractor -workspace ./spatial-photo-extractor.xcodeproj/project.xcworkspace -derivedDataPath ./.build
+
       - name: Create DMG file
         run: |
           hdiutil create ./.build/spatial-photo-extractor.dmg -volname "spatial-photo-extractor" -srcfolder ./.build/Build/Products/Release/spatial-photo-extractor -srcfolder ./README.md -ov -format UDZO
 
-      - name: Build with xcodebuild
-        run: xcodebuild -configuration Release -scheme spatial-photo-extractor -workspace ./spatial-photo-extractor.xcodeproj/project.xcworkspace -derivedDataPath ./.build
       - name: Create GitHub Release
         id: create_release
         uses: actions/create-release@v1
