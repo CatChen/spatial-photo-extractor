@@ -1,3 +1,5 @@
+#!/usr/bin/env swift
+
 //
 //  main.swift
 //  spatial-photo-extractor
@@ -37,7 +39,6 @@ case .notDetermined:
 }
 
 let fetchOptions = PHFetchOptions()
-//fetchOptions.fetchLimit = 1
 fetchOptions.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
 fetchOptions.predicate = NSPredicate(format: "mediaSubtype == %d", PHAssetMediaSubtype.spatialMedia.rawValue)
 
@@ -48,7 +49,7 @@ spatialPhotos.enumerateObjects { (asset, _, _) in
     print(asset.localIdentifier)
 
     let resources = PHAssetResource.assetResources(for: asset)
-    let filename = resources.first!.originalFilename as NSString
+    let filename = resources.first!.originalFilename
     print(filename)
     
     let options = PHImageRequestOptions()
@@ -63,65 +64,61 @@ spatialPhotos.enumerateObjects { (asset, _, _) in
         print(CFCopyDescription(info as CFTypeRef)!)
         let source = CGImageSourceCreateWithData(data! as CFData, nil)
         print("Source created")
+        extractImages(from: source!, to: URL.picturesDirectory.appendingPathComponent(filename))
+    }
+}
 
-        guard let properties = CGImageSourceCopyProperties(source!, nil) as? [CFString: Any] else {
+func extractImages(from source: CGImageSource!, to filename: URL!) {
+    guard let properties = CGImageSourceCopyProperties(source!, nil) as? [CFString: Any] else {
+        return
+    }
+    print("Properties copied")
+    print(CFCopyDescription(properties as CFTypeRef)!)
+    
+    let imageCount = CGImageSourceGetCount(source!)
+    print(String(format: "%d images found", imageCount))
+    
+    let primaryIndex = CGImageSourceGetPrimaryImageIndex(source!)
+    if let primaryImage = CGImageSourceCreateImageAtIndex(source!, primaryIndex, nil),
+       let primaryProperties = CGImageSourceCopyPropertiesAtIndex(source!, primaryIndex, nil) {
+        print("Primary image found at index \(primaryIndex)")
+        print(CFCopyDescription(primaryProperties as CFTypeRef)!)
+        saveImage(from: primaryImage, to: filename, name: "primary", properties: primaryProperties)
+    }
+
+    if let groups = properties[kCGImagePropertyGroups] as? [[CFString: Any]] {
+        let stereoGroup = groups.first(where: {
+            let groupType = $0[kCGImagePropertyGroupType] as! CFString
+            return groupType == kCGImagePropertyGroupTypeStereoPair
+        })
+        if stereoGroup == nil {
+            print("No stereo pair found")
             return
         }
-        print("Properties copied")
-        print(CFCopyDescription(properties as CFTypeRef)!)
-        
-        let imageCount = CGImageSourceGetCount(source!)
-        print(String(format: "%d images found", imageCount))
-        
-        if let groups = properties[kCGImagePropertyGroups] as? [[CFString: Any]] {
-            let stereoGroup = groups.first(where: {
-                let groupType = $0[kCGImagePropertyGroupType] as! CFString
-                return groupType == kCGImagePropertyGroupTypeStereoPair
-            })
-            if stereoGroup == nil {
-                print("No stereo pair found")
-                return
-            }
-                
-            if let stereoGroup,
-               let leftIndex = stereoGroup[kCGImagePropertyGroupImageIndexLeft] as? Int,
-               let rightIndex = stereoGroup[ kCGImagePropertyGroupImageIndexRight] as? Int,
-               let leftImage = CGImageSourceCreateImageAtIndex(source!, leftIndex, nil),
-               let rightImage = CGImageSourceCreateImageAtIndex(source!, rightIndex, nil),
-               let leftProperties = CGImageSourceCopyPropertiesAtIndex(source!, leftIndex, nil),
-               let rightProperties = CGImageSourceCopyPropertiesAtIndex(source!, rightIndex, nil) {
-                print("Stereo pair found")
-                print(CFCopyDescription(leftProperties as CFTypeRef)!)
-                print(CFCopyDescription(rightProperties as CFTypeRef)!)
-                
-                if let leftImageFilename = CFURLCreateWithFileSystemPathRelativeToBase(kCFAllocatorDefault, "./\(filename.deletingPathExtension)_left.jpg" as CFString, CFURLPathStyle.cfurlposixPathStyle, false, FileManager.default.homeDirectoryForCurrentUser as CFURL) {
-                    let leftImageFile = CGImageDestinationCreateWithURL(leftImageFilename, UTType.jpeg.identifier as CFString, 1, nil)
-                    CGImageDestinationAddImage(leftImageFile!, leftImage, CGImageSourceCopyPropertiesAtIndex(source!, leftIndex, nil))
-                    if CGImageDestinationFinalize(leftImageFile!) {
-                        print("Left image saved to \(CFURLGetString(leftImageFilename)! as String)")
-                    } else {
-                        print("Failed to save left image")
-                    }
-
-                } else {
-                    print("Failed to create left image file")
-                    return
-                }
-                
-                if let rightImageFilename = CFURLCreateWithFileSystemPathRelativeToBase(kCFAllocatorDefault, "./\(filename.deletingPathExtension)_right.jpg" as CFString, CFURLPathStyle.cfurlposixPathStyle, false, FileManager.default.homeDirectoryForCurrentUser as CFURL) {
-                    let rightImageFile = CGImageDestinationCreateWithURL(rightImageFilename, UTType.jpeg.identifier as CFString, 1, nil)
-                    
-                    CGImageDestinationAddImage(rightImageFile!, rightImage, CGImageSourceCopyPropertiesAtIndex(source!, rightIndex, nil))
-                    if CGImageDestinationFinalize(rightImageFile!) {
-                        print("Right image saved to \(CFURLGetString(rightImageFilename)! as String)")
-                    } else {
-                        print("Failed to save right image")
-                    }
-                } else {
-                    print("Failed to create right image file")
-                    return
-                }
-            }
+            
+        if let stereoGroup,
+           let leftIndex = stereoGroup[kCGImagePropertyGroupImageIndexLeft] as? Int,
+           let rightIndex = stereoGroup[ kCGImagePropertyGroupImageIndexRight] as? Int,
+           let leftImage = CGImageSourceCreateImageAtIndex(source!, leftIndex, nil),
+           let rightImage = CGImageSourceCreateImageAtIndex(source!, rightIndex, nil),
+           let leftProperties = CGImageSourceCopyPropertiesAtIndex(source!, leftIndex, nil),
+           let rightProperties = CGImageSourceCopyPropertiesAtIndex(source!, rightIndex, nil) {
+            print("Stereo pair found at indexes \(leftIndex) and \(rightIndex)")
+            print(CFCopyDescription(leftProperties as CFTypeRef)!)
+            print(CFCopyDescription(rightProperties as CFTypeRef)!)
+            saveImage(from: leftImage, to: filename, name: "left", properties: leftProperties)
+            saveImage(from: rightImage, to: filename, name: "right", properties: rightProperties)
         }
+    }
+}
+
+func saveImage(from image: CGImage, to filename: URL!, name: String!, properties: CFDictionary?) {
+    let imageFilename = filename.deletingLastPathComponent().appendingPathComponent("\(filename.deletingPathExtension().lastPathComponent)_\(name!)").appendingPathExtension("jpg")
+    let imageFile = CGImageDestinationCreateWithURL(imageFilename as CFURL, UTType.jpeg.identifier as CFString, 1, nil)
+    CGImageDestinationAddImage(imageFile!, image, properties)
+    if CGImageDestinationFinalize(imageFile!) {
+        print("\(String(describing: name)) image saved to \(imageFilename) as String)")
+    } else {
+        print("Failed to save \(String(describing: name)) image")
     }
 }
