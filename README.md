@@ -52,3 +52,7 @@ Not at the moment. It's not very hard to implement the same process in reverse.
 ### Does this tool support spatial video extraction?
 
 No. Maybe in the future.
+
+### Can I do the same thing with [ImageMagick](https://github.com/ImageMagick/ImageMagick)?
+
+You will be able to extract all the photos from a single `HEIC` file with the latest version of ImageMagick. However, you won't be able to tell which one is for the left eye and which one is for the right eye. Given a spatial photo `IMG_*.HEIC`, ImageMagick will extract `IMG_*-0.jpg`, `IMG_*-1.jpg` and `IMG_*-2.jpg` from it. Most of the time `[0, 1, 2]` represents `[primary, right, left]` but sometimes it's `[primary, left, right]` instead. Apple doesn't guarantee the order of these images inside an `HEIC` file.
