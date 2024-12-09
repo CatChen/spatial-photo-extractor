@@ -24,9 +24,14 @@ jobs:
       - name: Build with xcodebuild
         run: xcodebuild -configuration Release -scheme spatial-photo-extractor -workspace ./spatial-photo-extractor.xcodeproj/project.xcworkspace -derivedDataPath ./.build
 
+      - name: Create README.url file
+        run: |
+          echo "[InternetShortcut]" > ./.build/README.url
+          echo "URL=https://github.com/CatChen/spatial-photo-extractor/blob/main/README.md" >> ./.build/README.url
+
       - name: Create DMG file
         run: |
-          hdiutil create ./.build/spatial-photo-extractor.dmg -volname "spatial-photo-extractor" -srcfolder ./.build/Build/Products/Release/spatial-photo-extractor -srcfolder ./README.md -ov -format UDZO
+          hdiutil create ./.build/spatial-photo-extractor.dmg -volname "spatial-photo-extractor" -srcfolder ./.build/Build/Products/Release/spatial-photo-extractor -srcfolder ./.build/README.url -ov -format UDZO
 
       - name: Create GitHub Release
         id: create_release
