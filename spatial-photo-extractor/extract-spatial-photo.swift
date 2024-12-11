@@ -161,7 +161,7 @@ func saveImage(from image: CGImage, to filename: URL!, name: String!, properties
     let imageFile = CGImageDestinationCreateWithURL(imageFilename as CFURL, UTType.jpeg.identifier as CFString, 1, nil)
     CGImageDestinationAddImage(imageFile!, image, properties)
     if CGImageDestinationFinalize(imageFile!) {
-        print("\(name!) image saved to \(imageFilename) as String)")
+        print("\(name!) image saved to \(imageFilename)")
     } else {
         print("Failed to save \(name!) image")
     }
