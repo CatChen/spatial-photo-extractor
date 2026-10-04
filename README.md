@@ -56,7 +56,31 @@ Open `Package.swift` in Xcode to edit and debug.
 
 ## SpatialPhotoKit
 
-The extraction logic is available as the `SpatialPhotoKit` library for macOS, iOS and visionOS. Add this repository as a Swift Package Manager dependency and use it like this:
+The extraction logic is available as the `SpatialPhotoKit` library for macOS 15, iOS 18 and visionOS 2 or above.
+
+### Installation
+
+In Xcode, choose `File` -> `Add Package Dependencies…`, enter `https://github.com/CatChen/spatial-photo-extractor`, and add the `SpatialPhotoKit` library to your target.
+
+In a `Package.swift`, add the package and the product:
+
+```swift
+dependencies: [
+    .package(url: "https://github.com/CatChen/spatial-photo-extractor.git", from: "0.2.0"),
+],
+targets: [
+    .target(
+        name: "YourTarget",
+        dependencies: [
+            .product(name: "SpatialPhotoKit", package: "spatial-photo-extractor"),
+        ]
+    ),
+]
+```
+
+Your app only fetches what `SpatialPhotoKit` needs. The CLI's dependencies aren't included.
+
+### Usage
 
 ```swift
 import SpatialPhotoKit
