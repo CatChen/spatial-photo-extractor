@@ -78,7 +78,7 @@ targets: [
 ]
 ```
 
-Your app only fetches what `SpatialPhotoKit` needs. The CLI's dependencies aren't included.
+Your app only builds and links `SpatialPhotoKit`. Xcode may still download the CLI's `swift-argument-parser` dependency when resolving packages, but it isn't compiled into your app.
 
 ### Usage
 
