@@ -1,11 +1,15 @@
 version: 2
 updates:
-  - package-ecosystem: github-actions
-    directory: /
-    schedule:
-      interval: weekly
-
   - package-ecosystem: swift
-    directory: /
+    directory: '/'
     schedule:
-      interval: weekly
+      interval: daily
+    assignees:
+      - CatChen
+
+  - package-ecosystem: 'github-actions'
+    directory: '/'
+    schedule:
+      interval: daily
+    assignees:
+      - CatChen
