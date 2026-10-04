@@ -39,6 +39,35 @@ cd ~/Downloads
 
 It will generate the same 3 `JPEG` images (left, right and primary as described from above) for each `HEIC` file. They will be saved to the same directory as the `HEIC` file.
 
+### Debugging
+
+Add `--verbose` to print the image properties of every photo it processes.
+
+## Build from Source
+
+The project is a Swift package. Requires Xcode 16 or above.
+
+```zsh
+swift build -c release --product spatial-photo-extractor
+swift test
+```
+
+Open `Package.swift` in Xcode to edit and debug.
+
+## SpatialPhotoKit
+
+The extraction logic is available as the `SpatialPhotoKit` library for macOS, iOS and visionOS. Add this repository as a Swift Package Manager dependency and use it like this:
+
+```swift
+import SpatialPhotoKit
+
+let photo = try SpatialPhoto(contentsOf: url)
+if photo.hasStereoPair {
+    let left = try photo.image(.left)
+    let right = try photo.image(.right)
+}
+```
+
 ## FAQ
 
 ### Some spatial photos don't export a pair of stereo photos
