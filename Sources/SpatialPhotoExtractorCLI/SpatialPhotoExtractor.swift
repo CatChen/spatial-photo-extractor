@@ -26,6 +26,9 @@ struct ExtractSpatialPhoto: AsyncParsableCommand {
     @Flag(name: .shortAndLong, help: "Print image properties for debugging.")
     var verbose: Bool = false
 
+    @Flag(help: "Copy the photo's GPS location onto the left and right images.")
+    var copyLocation: Bool = false
+
     mutating func validate() throws {
         if photosLibrary && !files.isEmpty {
             throw ValidationError("Cannot specify both --photos-library and --files")
@@ -36,14 +39,14 @@ struct ExtractSpatialPhoto: AsyncParsableCommand {
 
     mutating func run() async throws {
         if photosLibrary {
-            try await usePhotosLibrary(verbose: verbose)
+            try await usePhotosLibrary(verbose: verbose, copyLocation: copyLocation)
         } else {
-            useFiles(files, verbose: verbose)
+            useFiles(files, verbose: verbose, copyLocation: copyLocation)
         }
     }
 }
 
-func usePhotosLibrary(verbose: Bool) async throws {
+func usePhotosLibrary(verbose: Bool, copyLocation: Bool) async throws {
     let status = await PHPhotoLibrary.requestAuthorization(for: .readWrite)
 
     switch status {
@@ -90,7 +93,7 @@ func usePhotosLibrary(verbose: Bool) async throws {
             let data = try await requestOriginalImageData(for: asset)
             print("Received image data of \(data.count) bytes")
             let output = URL.picturesDirectory.appendingPathComponent(filename)
-            try extractImages(from: SpatialPhoto(data: data), to: output, verbose: verbose)
+            try extractImages(from: SpatialPhoto(data: data), to: output, verbose: verbose, copyLocation: copyLocation)
         } catch {
             print("Failed to extract \(filename): \(error)")
         }
@@ -116,7 +119,7 @@ func requestOriginalImageData(for asset: PHAsset) async throws -> Data {
     }
 }
 
-func useFiles(_ files: [String], verbose: Bool) {
+func useFiles(_ files: [String], verbose: Bool, copyLocation: Bool) {
     for file in files {
         guard FileManager.default.fileExists(atPath: file) else {
             print("File not found: \(file)")
@@ -130,7 +133,7 @@ func useFiles(_ files: [String], verbose: Bool) {
 
         let url = URL(filePath: file)
         do {
-            try extractImages(from: SpatialPhoto(contentsOf: url), to: url, verbose: verbose)
+            try extractImages(from: SpatialPhoto(contentsOf: url), to: url, verbose: verbose, copyLocation: copyLocation)
         } catch {
             print("Failed to extract \(file): \(error)")
         }
@@ -138,7 +141,8 @@ func useFiles(_ files: [String], verbose: Bool) {
 }
 
 /// Saves `<name>_primary.jpg`, `<name>_left.jpg` and `<name>_right.jpg` next to `filename`.
-func extractImages(from photo: SpatialPhoto, to filename: URL, verbose: Bool) throws {
+/// With `copyLocation`, the left and right images also get the primary image's GPS location.
+func extractImages(from photo: SpatialPhoto, to filename: URL, verbose: Bool, copyLocation: Bool) throws {
     if verbose {
         print(photo.properties)
     }
@@ -158,7 +162,7 @@ func extractImages(from photo: SpatialPhoto, to filename: URL, verbose: Bool) th
             print(try photo.properties(component))
         }
         let output = SpatialPhoto.outputURL(for: component, in: directory, baseName: baseName)
-        try photo.write(component, to: output)
+        try photo.write(component, to: output, includeLocation: copyLocation)
         print("\(component.rawValue) image saved to \(output.path)")
     }
 }

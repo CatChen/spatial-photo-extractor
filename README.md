@@ -39,6 +39,14 @@ cd ~/Downloads
 
 It will generate the same 3 `JPEG` images (left, right and primary as described from above) for each `HEIC` file. They will be saved to the same directory as the `HEIC` file.
 
+### Location
+
+In a spatial photo, the GPS location is stored only on the primary image, so by default the left and right images have no location. Add `--copy-location` to copy the photo's GPS location onto the left and right images. An eye image's own GPS, if it has one, is never overwritten.
+
+```zsh
+./spatial-photo-extractor --files ~/Pictures/IMG_0001.HEIC --copy-location
+```
+
 ### Debugging
 
 Add `--verbose` to print the image properties of every photo it processes.

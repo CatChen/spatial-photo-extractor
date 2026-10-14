@@ -119,9 +119,20 @@ public struct SpatialPhoto {
     }
 
     /// Writes the given component to `url` as a single image, keeping its properties.
-    public func write(_ component: SpatialPhotoComponent, to url: URL, as type: UTType = .jpeg) throws {
+    ///
+    /// In a spatial photo the GPS location is stored only on the primary image, so the eye
+    /// images have none. Pass `includeLocation: true` to copy the primary image's GPS onto a
+    /// component that has no GPS of its own. Existing GPS is never overwritten.
+    public func write(
+        _ component: SpatialPhotoComponent, to url: URL, as type: UTType = .jpeg, includeLocation: Bool = false
+    ) throws {
         let image = try image(component)
-        let properties = try properties(component)
+        var properties = try properties(component)
+        if includeLocation, properties[kCGImagePropertyGPSDictionary] == nil,
+            let gps = primaryLocation
+        {
+            properties[kCGImagePropertyGPSDictionary] = gps
+        }
         guard let destination = CGImageDestinationCreateWithURL(url as CFURL, type.identifier as CFString, 1, nil) else {
             throw SpatialPhotoError.destinationCreationFailed(url)
         }
@@ -129,6 +140,12 @@ public struct SpatialPhoto {
         guard CGImageDestinationFinalize(destination) else {
             throw SpatialPhotoError.writeFailed(url)
         }
+    }
+
+    /// The primary image's GPS dictionary, if it has one.
+    public var primaryLocation: [CFString: Any]? {
+        let primary = CGImageSourceCopyPropertiesAtIndex(source, primaryIndex, nil) as? [CFString: Any]
+        return primary?[kCGImagePropertyGPSDictionary] as? [CFString: Any]
     }
 
     /// The output URL for a component, e.g. `IMG_0001_left.jpg` next to `IMG_0001.HEIC`.
