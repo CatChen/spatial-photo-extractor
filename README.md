@@ -6,7 +6,7 @@ You took spatial photos with your iPhone 15/16 Pro (requires iOS 18.2 or above) 
 
 Spatial Photo Extractor is also an app for iPhone, iPad and Mac, built on this library. It extracts the left-eye and right-eye images from your spatial photos at full resolution, with all metadata kept. Previewing is free; exporting needs a one-time unlock that works on iPhone, iPad and Mac. It also runs on Apple Vision Pro as an iPad app.
 
-<a href="https://apps.apple.com/app/spatial-photo-extractor/id6822808463"><img src="https://tools.applemarketingtools.com/api/badges/download-on-the-app-store/black/en-us?size=250x83" alt="Download on the App Store" height="40"></a>
+<a href="https://apps.apple.com/app/spatial-photo-extractor/id6822808463"><img src="docs/app-store-badge.svg" alt="Download on the App Store" height="40"></a>
 
 ## Usage
 
